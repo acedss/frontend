@@ -19,7 +19,7 @@ interface ChatStore {
     disconnectSocket: () => void;
 }
 
-const baseURL = import.meta.env.MODE === "development" ? "http://localhost:4000" : "/";
+const baseURL = import.meta.env.MODE === "development" ? "http://localhost:4000" : "/api";
 
 const socket = io(baseURL, {
     autoConnect: false, // only connect if user is authenticated
