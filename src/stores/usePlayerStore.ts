@@ -1,5 +1,15 @@
 import { create } from "zustand";
 import { Song } from "@/types";
+import { useChatStore } from "./useChatStore";
+import { useUser } from "@clerk/clerk-react";
+
+// NOTE: This hook needs to be used **inside a React component or effect**
+// to access the authenticated Clerk user
+let clerkUserId: string | null = null;
+
+export const setClerkUserId = (id: string) => {
+    clerkUserId = id;
+};
 
 interface PlayerStore {
     currentSong: Song | null;
@@ -26,12 +36,18 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
             queue: songs,
             currentSong: get().currentSong || songs[0],
             currentIndex: get().currentIndex === -1 ? 0 : get().currentIndex
-        })
+        });
     },
+
     playAlbum: (songs: Song[], startIndex = 0) => {
         if (songs.length === 0) return;
 
         const song = songs[startIndex];
+        const { updateActivity } = useChatStore.getState();
+
+        if (clerkUserId) {
+            updateActivity(clerkUserId, song.title, song.artist);
+        }
 
         set({
             queue: songs,
@@ -40,54 +56,87 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
             isPlaying: true,
         });
     },
+
     setCurrentSong: (song: Song | null) => {
         if (!song) return;
-        const songIndex = get().queue.findIndex(s => s._id === song._id)
+
+        const songIndex = get().queue.findIndex(s => s._id === song._id);
+        const { updateActivity } = useChatStore.getState();
+
+        if (clerkUserId) {
+            updateActivity(clerkUserId, song.title, song.artist);
+        }
+
         set({
             currentSong: song,
             isPlaying: true,
             currentIndex: songIndex !== -1 ? songIndex : get().currentIndex
         });
     },
-    togglePlay: () => {
-        const willStartPlaying = !get().isPlaying;
 
-        set({
-            isPlaying: willStartPlaying,
-        });
+    togglePlay: () => {
+        const { isPlaying, currentSong } = get();
+        const { updateActivity } = useChatStore.getState();
+        const willStartPlaying = !isPlaying;
+
+        if (clerkUserId && currentSong) {
+            if (willStartPlaying) {
+                updateActivity(clerkUserId, currentSong.title, currentSong.artist);
+            } else {
+                updateActivity(clerkUserId, "", "");
+            }
+        }
+
+        set({ isPlaying: willStartPlaying });
     },
+
     playNext: () => {
         const { currentIndex, queue } = get();
         const nextIndex = currentIndex + 1;
 
-        // If there is next song to pla => play 
         if (nextIndex < queue.length) {
             const nextSong = queue[nextIndex];
+            const { updateActivity } = useChatStore.getState();
+
+            if (clerkUserId) {
+                updateActivity(clerkUserId, nextSong.title, nextSong.artist);
+            }
+
             set({
                 currentSong: nextSong,
                 currentIndex: nextIndex,
                 isPlaying: true,
             });
         } else {
-            // no next song neft
-            set({ isPlaying: false })
+            if (clerkUserId) {
+                useChatStore.getState().updateActivity(clerkUserId, "", "");
+            }
+            set({ isPlaying: false });
         }
     },
+
     playPrevious: () => {
         const { currentIndex, queue } = get();
         const prevIndex = currentIndex - 1;
 
-        // there prev song
         if (prevIndex >= 0) {
             const prevSong = queue[prevIndex];
+            const { updateActivity } = useChatStore.getState();
+
+            if (clerkUserId) {
+                updateActivity(clerkUserId, prevSong.title, prevSong.artist);
+            }
+
             set({
                 currentSong: prevSong,
                 currentIndex: prevIndex,
                 isPlaying: true,
             });
         } else {
-            // no prev song
+            if (clerkUserId) {
+                useChatStore.getState().updateActivity(clerkUserId, "", "");
+            }
             set({ isPlaying: false });
         }
     },
-}))
+}));

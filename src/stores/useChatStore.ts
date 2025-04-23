@@ -17,6 +17,7 @@ interface ChatStore {
     fetchUsers: () => Promise<void>;
     initSocket: (userId: string) => void;
     disconnectSocket: () => void;
+    updateActivity: (userId: string, songTitle: string, artistName: string) => void;
 }
 
 const baseURL = import.meta.env.MODE === "development" ? "http://localhost:4000" : "https://spacic.aceds.space/api";
@@ -96,5 +97,15 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             socket.disconnect();
             set({ isConnected: false });
         }
+    },
+    updateActivity: (userId: string, songTitle: string, artistName: string) => {
+        const socket = get().socket;
+        if (!socket || !get().isConnected) return;
+
+        const activity = songTitle && artistName
+            ? `Playing ${songTitle} by ${artistName}`
+            : "Idle";
+
+        socket.emit("update_activity", { userId, activity });
     },
 }));
