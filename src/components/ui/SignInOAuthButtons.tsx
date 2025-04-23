@@ -10,13 +10,12 @@ const SignInOAuthButtons = () => {
     }
 
     const signInWithGoogle = () => {
-    signIn.authenticateWithRedirect({
+        signIn.authenticateWithRedirect({
             strategy: "oauth_google",
             redirectUrl: "/sso-callback",
             redirectUrlComplete: "/auth-callback",
         })
     }
-
 
     return <Button onClick={signInWithGoogle} variant={"secondary"} className="w-full text-purple-400 border-zinc-200 h-11">Log-in<LogIn className="w-5 h-5" /></Button>
 }

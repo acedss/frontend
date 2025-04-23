@@ -1,4 +1,3 @@
-
 import PlaylistSkeleton from "@/components/skeleton/PlaylistSkeleton";
 import { buttonVariants } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -6,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
 import { useMusicStore } from "@/stores/useMusicStore"
 import { SignedIn } from "@clerk/clerk-react"
-import { User, HomeIcon, Library, MessageCircleIcon } from "lucide-react"
+import { HomeIcon, Library } from "lucide-react"
 import { useEffect } from "react"
 import { Link } from "react-router-dom"
 
@@ -35,25 +34,7 @@ export const LeftSidebar = () => {
                         <span className="hidden md:inline">Home</span>
                     </Link>
                     <SignedIn>
-                        <Link to={"/chat"} className={cn(buttonVariants(
-                            {
-                                variant: "ghost",
-                                className: "w-full justify-start hover:scale-105 transition-all text-white hover:bg-zinc-800"
-                            }
-                        ))}>
-                            <MessageCircleIcon className="mr-2 size-5" />
-                            <span className="hidden md:inline">Messages</span>
-                        </Link>
 
-                        <Link to={"/chat"} className={cn(buttonVariants(
-                            {
-                                variant: "ghost",
-                                className: "w-full justify-start hover:scale-105 transition-all text-white hover:bg-zinc-800"
-                            }
-                        ))}>
-                            <User className="mr-2 size-5" />
-                            <span className="hidden md:inline">Profile</span>
-                        </Link>
 
                     </SignedIn>
                 </div>

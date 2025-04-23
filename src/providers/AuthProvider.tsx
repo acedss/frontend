@@ -8,7 +8,7 @@ import { useChatStore } from "@/stores/useChatStore";
 
 const updateApiToken = (token: string | null) => {
     if (token) axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`
-    else delete axiosInstance.defaults.headers.common['Authorization']
+    console.log("Axios token", axiosInstance.defaults.headers.common['Authorization'])
 };
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -21,13 +21,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const initAuth = async () => {
             try {
                 const token = await getToken()
+                console.log("Token from auth provider", token)
                 updateApiToken(token)
                 if (token) {
                     await checkAdminStatus();
                     //  init socket
                     if (userId) initSocket(userId)
-
-
                 };
             } catch (error) {
                 updateApiToken(null)
@@ -52,7 +51,3 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
 }
 export default AuthProvider
-
-function initUserSocket(userId: string) {
-    throw new Error("Function not implemented.");
-}
